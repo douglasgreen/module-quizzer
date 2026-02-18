@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Results: {{ module.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Courses</a></li>
+    <li class="breadcrumb-item">
+      <a href="/course/{{ course.course_id }}">{{ course.title }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/module/{{ module.module_id }}">{{ module.title }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Results</li>
+  </ol>
+</nav>
+
+<h1>Quiz Results</h1>
+
+<div class="card mb-4 text-center">
+  <div class="card-body py-4">
+    <p class="score-display
+       {% if percentage >= 80 %}text-success
+       {% elseif percentage >= 60 %}text-warning
+       {% else %}text-danger{% endif %}">
+      {{ percentage }}%
+    </p>
+    <p class="lead mb-0">
+      {{ total_score }} / {{ total_questions }} point{{ total_questions != 1 ? 's' : '' }}
+    </p>
+  </div>
+</div>
+
+{% for r in results %}
+  <div class="card mb-3
+    {% if r.score >= 1 %}border-success
+    {% elseif r.score > 0 %}border-warning
+    {% else %}border-danger{% endif %}">
+    <div class="card-header d-flex justify-content-between">
+      <span>Question {{ loop.index }}
+        <span class="badge bg-secondary ms-1">
+          {{ r.question.question_type|replace({'_': ' '})|capitalize }}
+        </span>
+      </span>
+      <span class="badge
+        {% if r.score >= 1 %}bg-success
+        {% elseif r.score > 0 %}bg-warning text-dark
+        {% else %}bg-danger{% endif %}">
+        {{ r.score|number_format(2) }} / 1.00
+      </span>
+    </div>
+    <div class="card-body">
+      <p><strong>{{ r.question.prompt }}</strong></p>
+      <p>Your answer: {{ r.user_answer }}</p>
+      {% if r.score < 1 %}
+        <p class="text-success">Correct answer: {{ r.correct_answer }}</p>
+      {% endif %}
+      {% if r.feedback %}
+        <p class="fst-italic text-muted">{{ r.feedback }}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
+
+<div class="mt-4">
+  <a href="/module/{{ module.module_id }}/quiz"
+     class="btn btn-primary">Retake Quiz</a>
+  <a href="/module/{{ module.module_id }}"
+     class="btn btn-outline-secondary">Back to Module</a>
+  <a href="/report" class="btn btn-outline-info">View All Reports</a>
+</div>
+{% endblock %}

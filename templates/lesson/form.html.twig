@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Lesson — {{ module.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Courses</a></li>
+    <li class="breadcrumb-item">
+      <a href="/course/{{ course.course_id }}">{{ course.title }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/module/{{ module.module_id }}">{{ module.title }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Lesson</li>
+  </ol>
+</nav>
+
+<h1>{{ lesson ? 'Edit' : 'Create' }} Lesson</h1>
+<p class="text-muted">Write HTML directly. The content will be rendered inside the module page.</p>
+
+<form method="post" action="/module/{{ module.module_id }}/lesson">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="mb-3">
+    <label for="content_html" class="form-label">Lesson Content (HTML)</label>
+    <textarea class="form-control font-monospace" id="content_html"
+              name="content_html" rows="18">{{ lesson ? lesson.content_html : '' }}</textarea>
+    <div class="form-text">
+      Use standard HTML tags: <code>&lt;h2&gt;</code>, <code>&lt;p&gt;</code>,
+      <code>&lt;ul&gt;</code>, <code>&lt;code&gt;</code>, etc.
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Save Lesson</button>
+  <a href="/module/{{ module.module_id }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

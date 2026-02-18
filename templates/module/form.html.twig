@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Edit' : 'Add' }} Module — ModuleQuizzer{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Courses</a></li>
+    <li class="breadcrumb-item">
+      <a href="/course/{{ course.course_id }}">{{ course.title }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      {{ is_edit ? 'Edit' : 'Add' }} Module
+    </li>
+  </ol>
+</nav>
+
+<h1>{{ is_edit ? 'Edit Module' : 'New Module' }}</h1>
+
+<form method="post"
+      action="{{ is_edit ? '/module/' ~ module.module_id ~ '/edit' : '/course/' ~ course.course_id ~ '/module/create' }}"
+      class="mt-3" style="max-width: 40rem;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="mb-3">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" class="form-control" id="title" name="title"
+           value="{{ module ? module.title : '' }}" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="sort_order" class="form-label">Sort Order</label>
+    <input type="number" class="form-control" id="sort_order" name="sort_order"
+           value="{{ module ? module.sort_order : 0 }}" min="0">
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    {{ is_edit ? 'Update' : 'Create' }} Module
+  </button>
+  <a href="{{ is_edit ? '/module/' ~ module.module_id : '/course/' ~ course.course_id }}"
+     class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

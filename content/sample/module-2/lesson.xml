@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lesson>
+    <content><![CDATA[
+<h2>Introduction to CSS</h2>
+<p>CSS (Cascading Style Sheets) controls the visual presentation of HTML elements.
+   You use CSS to set colors, fonts, spacing, layout, and more.</p>
+
+<h3>Three Ways to Add CSS</h3>
+<ol>
+  <li><strong>Inline</strong> — directly on an element via the <code>style</code> attribute.</li>
+  <li><strong>Internal</strong> — inside a <code>&lt;style&gt;</code> block in the head.</li>
+  <li><strong>External</strong> — in a separate <code>.css</code> file linked with
+      <code>&lt;link&gt;</code> (recommended).</li>
+</ol>
+]]></content>
+</lesson>

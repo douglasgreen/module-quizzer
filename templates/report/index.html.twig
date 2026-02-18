@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Score Report — ModuleQuizzer{% endblock %}
+
+{% block content %}
+<h1>Score Report</h1>
+<p class="text-muted">All quiz attempts across every module, newest first.</p>
+
+{% if attempts|length > 0 %}
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Course</th>
+          <th scope="col">Module</th>
+          <th scope="col" class="text-end">Points</th>
+          <th scope="col" class="text-end">Questions</th>
+          <th scope="col" class="text-end">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in attempts %}
+          <tr>
+            <td>{{ a.attempted_at|date('Y-m-d H:i') }}</td>
+            <td>
+              <a href="/course/{{ a.course_id }}">{{ a.course_title }}</a>
+            </td>
+            <td>
+              <a href="/module/{{ a.module_id }}">{{ a.module_title }}</a>
+            </td>
+            <td class="text-end">{{ a.points_earned }}</td>
+            <td class="text-end">{{ a.total_questions }}</td>
+            <td class="text-end">
+              <span class="badge
+                {% if a.score >= 80 %}bg-success
+                {% elseif a.score >= 60 %}bg-warning text-dark
+                {% else %}bg-danger{% endif %}">
+                {{ a.score }}%
+              </span>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="text-muted">No quiz attempts recorded yet. Take a quiz to see results here.</p>
+{% endif %}
+{% endblock %}

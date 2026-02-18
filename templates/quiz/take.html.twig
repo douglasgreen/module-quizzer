@@ -1,0 +1,149 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz: {{ module.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Courses</a></li>
+    <li class="breadcrumb-item">
+      <a href="/course/{{ course.course_id }}">{{ course.title }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/module/{{ module.module_id }}">{{ module.title }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Quiz</li>
+  </ol>
+</nav>
+
+<h1>Quiz: {{ module.title }}</h1>
+<p class="text-muted">
+  {{ questions|length }} question{{ questions|length != 1 ? 's' : '' }}.
+  Each question is worth 1 point. There is no time limit.
+</p>
+
+<form method="post" action="/module/{{ module.module_id }}/quiz" id="quiz-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {% for question in questions %}
+    {% set qid = question.question_id %}
+    <div class="card mb-4 question-card">
+      <div class="card-header d-flex justify-content-between">
+        <span><strong>Question {{ loop.index }}</strong></span>
+        <span class="badge bg-secondary">
+          {{ question.question_type|replace({'_': ' '})|capitalize }}
+        </span>
+      </div>
+      <div class="card-body">
+
+        {# ── FILL-IN-BLANK (inline inputs) ── #}
+        {% if question.question_type == 'fill_blank' %}
+          <p class="card-text">
+            {% set parts = question.prompt|split('____') %}
+            {% for part in parts %}
+              {{ part }}
+              {% if not loop.last %}
+                <input type="text" name="answers[{{ qid }}][]"
+                       class="form-control fill-blank-input"
+                       required
+                       aria-label="Blank {{ loop.index }}">
+              {% endif %}
+            {% endfor %}
+          </p>
+
+        {# ── TRUE / FALSE ── #}
+        {% elseif question.question_type == 'true_false' %}
+          <p class="card-text">{{ question.prompt }}</p>
+          <div class="form-check">
+            <input class="form-check-input" type="radio"
+                   name="answers[{{ qid }}]" id="q{{ qid }}_t"
+                   value="1" required>
+            <label class="form-check-label" for="q{{ qid }}_t">True</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio"
+                   name="answers[{{ qid }}]" id="q{{ qid }}_f"
+                   value="0" required>
+            <label class="form-check-label" for="q{{ qid }}_f">False</label>
+          </div>
+
+        {# ── MULTIPLE CHOICE ── #}
+        {% elseif question.question_type == 'multiple_choice' %}
+          <p class="card-text">{{ question.prompt }}</p>
+          {% for opt in options_by_question[qid] %}
+            <div class="form-check">
+              <input class="form-check-input" type="radio"
+                     name="answers[{{ qid }}]"
+                     id="q{{ qid }}_o{{ opt.option_id }}"
+                     value="{{ opt.option_id }}" required>
+              <label class="form-check-label"
+                     for="q{{ qid }}_o{{ opt.option_id }}">
+                {{ opt.option_text }}
+              </label>
+            </div>
+          {% endfor %}
+
+        {# ── MULTIPLE SELECT ── #}
+        {% elseif question.question_type == 'multiple_select' %}
+          <p class="card-text">{{ question.prompt }}</p>
+          <p class="text-muted small">Select all that apply.</p>
+          {% for opt in options_by_question[qid] %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox"
+                     name="answers[{{ qid }}][]"
+                     id="q{{ qid }}_o{{ opt.option_id }}"
+                     value="{{ opt.option_id }}">
+              <label class="form-check-label"
+                     for="q{{ qid }}_o{{ opt.option_id }}">
+                {{ opt.option_text }}
+              </label>
+            </div>
+          {% endfor %}
+
+        {# ── FLASHCARD ── #}
+        {% elseif question.question_type == 'flashcard' %}
+          <p class="card-text">{{ question.prompt }}</p>
+
+          <div class="flashcard-answer mt-3" id="fc-ans-{{ qid }}"
+               style="display:none">
+            <strong>Answer:</strong> {{ question.flashcard_answer }}
+          </div>
+
+          <button type="button" class="btn btn-info mt-2"
+                  id="fc-btn-{{ qid }}"
+                  onclick="document.getElementById('fc-ans-{{ qid }}').style.display='block';
+                           document.getElementById('fc-btn-{{ qid }}').style.display='none';
+                           document.getElementById('fc-grade-{{ qid }}').style.display='block';">
+            Show Answer
+          </button>
+
+          <div class="mt-3" id="fc-grade-{{ qid }}" style="display:none">
+            <div class="btn-group" role="group"
+                 aria-label="Self-grade question {{ loop.index }}">
+              <input type="radio" class="btn-check"
+                     name="answers[{{ qid }}]"
+                     id="fc{{ qid }}_y" value="1"
+                     autocomplete="off" required>
+              <label class="btn btn-outline-success" for="fc{{ qid }}_y">
+                I Got It Right
+              </label>
+              <input type="radio" class="btn-check"
+                     name="answers[{{ qid }}]"
+                     id="fc{{ qid }}_n" value="0"
+                     autocomplete="off">
+              <label class="btn btn-outline-danger" for="fc{{ qid }}_n">
+                I Got It Wrong
+              </label>
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+  <a href="/module/{{ module.module_id }}"
+     class="btn btn-outline-secondary btn-lg ms-2">Cancel</a>
+</form>
+{% endblock %}

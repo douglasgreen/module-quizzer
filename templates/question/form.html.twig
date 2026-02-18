@@ -1,0 +1,231 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Edit' : 'Add' }} Question — {{ module.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Courses</a></li>
+    <li class="breadcrumb-item">
+      <a href="/course/{{ course.course_id }}">{{ course.title }}</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/module/{{ module.module_id }}">{{ module.title }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      {{ is_edit ? 'Edit' : 'Add' }} Question
+    </li>
+  </ol>
+</nav>
+
+<h1>{{ is_edit ? 'Edit' : 'Add' }} Question</h1>
+
+<form method="post"
+      action="{{ is_edit
+        ? '/question/' ~ question.question_id ~ '/edit'
+        : '/module/' ~ module.module_id ~ '/question/create' }}"
+      style="max-width: 50rem;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  {# ── Type selector ── #}
+  <div class="mb-3">
+    <label for="question_type" class="form-label">Question Type</label>
+    <select class="form-select" id="question_type" name="question_type" required>
+      <option value="">Select type&hellip;</option>
+      {% for val, label in {
+        true_false:      'True / False',
+        multiple_choice: 'Multiple Choice',
+        multiple_select: 'Multiple Select',
+        fill_blank:      'Fill-in-Blank',
+        flashcard:       'Flashcard'
+      } %}
+        <option value="{{ val }}"
+          {% if question and question.question_type == val %} selected{% endif %}>
+          {{ label }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  {# ── Prompt ── #}
+  <div class="mb-3">
+    <label for="prompt" class="form-label">Question Prompt</label>
+    <textarea class="form-control" id="prompt" name="prompt"
+              rows="3" required>{{ question ? question.prompt : '' }}</textarea>
+    <div class="form-text" id="hint-fill_blank" style="display:none">
+      Use <code>____</code> (four underscores) to mark each blank.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="sort_order" class="form-label">Sort Order</label>
+    <input type="number" class="form-control" id="sort_order" name="sort_order"
+           value="{{ question ? question.sort_order : 0 }}" min="0"
+           style="max-width: 8rem;">
+  </div>
+
+  {# ── True / False section ── #}
+  <fieldset class="qtype-section mb-3" id="section-true_false" style="display:none">
+    <legend class="h6">Correct Answer</legend>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="correct_boolean"
+             id="tf_true" value="1"
+             {% if question and question.correct_boolean == '1' %} checked{% endif %}>
+      <label class="form-check-label" for="tf_true">True</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="correct_boolean"
+             id="tf_false" value="0"
+             {% if question and question.correct_boolean == '0' %} checked{% endif %}>
+      <label class="form-check-label" for="tf_false">False</label>
+    </div>
+  </fieldset>
+
+  {# ── Options section (MCQ / MSQ) ── #}
+  <div class="qtype-section mb-3" id="section-options" style="display:none">
+    <label class="form-label">Options</label>
+    <p class="form-text">Tick the checkbox next to each correct answer.</p>
+    <div id="options-container"></div>
+    <button type="button" class="btn btn-sm btn-outline-secondary mt-2"
+            id="add-option-btn">+ Add Option</button>
+  </div>
+
+  {# ── Fill-in-Blank section ── #}
+  <div class="qtype-section mb-3" id="section-fill_blank" style="display:none">
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="is_case_sensitive"
+             name="is_case_sensitive" value="1"
+             {% if question and question.is_case_sensitive == '1' %} checked{% endif %}>
+      <label class="form-check-label" for="is_case_sensitive">Case Sensitive</label>
+    </div>
+    <label for="fill_blank_answers" class="form-label">Accepted Answers</label>
+    <div class="form-text mb-2">
+      Enter accepted answers for each blank, one per line.
+      Separate groups for different blanks with <code>---</code> on its own line.
+    </div>
+    <textarea class="form-control font-monospace" id="fill_blank_answers"
+              name="fill_blank_answers" rows="5"
+              placeholder="Paris&#10;paris&#10;---&#10;Seine&#10;seine">{{ fill_blank_display }}</textarea>
+  </div>
+
+  {# ── Flashcard section ── #}
+  <div class="qtype-section mb-3" id="section-flashcard" style="display:none">
+    <label for="flashcard_answer" class="form-label">Answer</label>
+    <textarea class="form-control" id="flashcard_answer" name="flashcard_answer"
+              rows="3">{{ question ? question.flashcard_answer : '' }}</textarea>
+  </div>
+
+  {# ── Feedback (all types except flashcard) ── #}
+  <div class="qtype-section mb-3" id="section-feedback" style="display:none">
+    <label for="feedback_correct" class="form-label">Feedback (Correct)</label>
+    <textarea class="form-control" id="feedback_correct" name="feedback_correct"
+              rows="2">{{ question ? question.feedback_correct : '' }}</textarea>
+    <label for="feedback_incorrect" class="form-label mt-2">Feedback (Incorrect)</label>
+    <textarea class="form-control" id="feedback_incorrect" name="feedback_incorrect"
+              rows="2">{{ question ? question.feedback_incorrect : '' }}</textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    {{ is_edit ? 'Update' : 'Create' }} Question
+  </button>
+  <a href="/module/{{ module.module_id }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+
+{# Pass existing options as a data attribute for safe JS consumption #}
+<div id="options-data"
+     data-options="{{ options|json_encode|e('html_attr') }}"
+     style="display:none"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  'use strict';
+
+  var optionIndex   = 0;
+  var typeSelect    = document.getElementById('question_type');
+  var container     = document.getElementById('options-container');
+  var addBtn        = document.getElementById('add-option-btn');
+  var dataEl        = document.getElementById('options-data');
+  var existing      = dataEl ? JSON.parse(dataEl.dataset.options || '[]') : [];
+
+  /* ── helpers ────────────────────────────────── */
+
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(str));
+    return d.innerHTML;
+  }
+
+  function addOption(text, isCorrect) {
+    text      = text || '';
+    isCorrect = isCorrect || false;
+    var idx   = optionIndex++;
+
+    var row       = document.createElement('div');
+    row.className = 'input-group mb-2';
+    row.innerHTML =
+      '<div class="input-group-text">' +
+        '<input type="checkbox" name="option_is_correct[' + idx + ']" value="1"' +
+               (isCorrect ? ' checked' : '') +
+               ' aria-label="Mark option as correct">' +
+      '</div>' +
+      '<input type="text" class="form-control" name="option_text[' + idx + ']"' +
+             ' value="' + escapeHtml(text) + '" placeholder="Option text"' +
+             ' required aria-label="Option text">' +
+      '<button class="btn btn-outline-danger" type="button"' +
+              ' aria-label="Remove option">&times;</button>';
+
+    row.querySelector('.btn-outline-danger').addEventListener('click', function () {
+      row.remove();
+    });
+
+    container.appendChild(row);
+  }
+
+  function showSections(type) {
+    var all = document.querySelectorAll('.qtype-section');
+    for (var i = 0; i < all.length; i++) { all[i].style.display = 'none'; }
+    document.getElementById('hint-fill_blank').style.display = 'none';
+
+    switch (type) {
+      case 'true_false':
+        document.getElementById('section-true_false').style.display = 'block';
+        document.getElementById('section-feedback').style.display   = 'block';
+        break;
+      case 'multiple_choice':
+      case 'multiple_select':
+        document.getElementById('section-options').style.display  = 'block';
+        document.getElementById('section-feedback').style.display = 'block';
+        if (container.children.length === 0) {
+          for (var j = 0; j < 4; j++) { addOption(); }
+        }
+        break;
+      case 'fill_blank':
+        document.getElementById('section-fill_blank').style.display = 'block';
+        document.getElementById('section-feedback').style.display   = 'block';
+        document.getElementById('hint-fill_blank').style.display    = 'block';
+        break;
+      case 'flashcard':
+        document.getElementById('section-flashcard').style.display = 'block';
+        break;
+    }
+  }
+
+  /* ── event binding ─────────────────────────── */
+
+  typeSelect.addEventListener('change', function () { showSections(this.value); });
+  addBtn.addEventListener('click', function () { addOption(); });
+
+  /* ── initialise on load ────────────────────── */
+
+  if (existing.length > 0) {
+    for (var k = 0; k < existing.length; k++) {
+      addOption(existing[k].option_text, parseInt(existing[k].is_correct, 10) === 1);
+    }
+  }
+
+  if (typeSelect.value) { showSections(typeSelect.value); }
+})();
+</script>
+{% endblock %}

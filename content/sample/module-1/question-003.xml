@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<question type="fill_blank">
+    <prompt>The ____ tag is used to define a paragraph in HTML.</prompt>
+    <sort_order>3</sort_order>
+    <is_case_sensitive>false</is_case_sensitive>
+    <blanks>
+        <blank>
+            <answer>&lt;p&gt;</answer>
+            <answer>p</answer>
+        </blank>
+    </blanks>
+    <feedback_correct>Correct! The &lt;p&gt; tag defines a paragraph.</feedback_correct>
+    <feedback_incorrect>The correct answer is &lt;p&gt;. It stands for "paragraph."</feedback_incorrect>
+</question>

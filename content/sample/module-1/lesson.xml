@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lesson>
+    <content><![CDATA[
+<h2>What Is HTML?</h2>
+<p>HTML (HyperText Markup Language) is the standard language for creating web pages.
+   Every web page you visit is built with HTML at its foundation.</p>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Elements</strong> — the building blocks, defined by tags like
+      <code>&lt;p&gt;</code> and <code>&lt;h1&gt;</code>.</li>
+  <li><strong>Attributes</strong> — provide extra information, such as
+      <code>class</code> or <code>id</code>.</li>
+  <li><strong>Nesting</strong> — elements can contain other elements to create structure.</li>
+</ul>
+
+<h3>A Minimal Page</h3>
+<pre><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;&lt;title&gt;Hello&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;&lt;p&gt;Hello, world!&lt;/p&gt;&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+]]></content>
+</lesson>

@@ -1,0 +1,7 @@
+database:
+    host: "127.0.0.1"
+    port: 3306
+    name: "module_quizzer"
+    username: "quizzer"
+    password: "change_me"
+    charset: "utf8mb4"

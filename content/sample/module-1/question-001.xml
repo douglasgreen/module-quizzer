@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<question type="true_false">
+    <prompt>HTML stands for HyperText Markup Language.</prompt>
+    <sort_order>1</sort_order>
+    <correct_answer>true</correct_answer>
+    <feedback_correct>Correct! HTML is indeed HyperText Markup Language.</feedback_correct>
+    <feedback_incorrect>Actually, HTML does stand for HyperText Markup Language.</feedback_incorrect>
+</question>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<question type="multiple_choice">
+    <prompt>Which tag is used for the largest heading in HTML?</prompt>
+    <sort_order>2</sort_order>
+    <options>
+        <option correct="true">&lt;h1&gt;</option>
+        <option correct="false">&lt;h6&gt;</option>
+        <option correct="false">&lt;head&gt;</option>
+        <option correct="false">&lt;header&gt;</option>
+    </options>
+    <feedback_correct>Correct! &lt;h1&gt; is the largest heading level.</feedback_correct>
+    <feedback_incorrect>The &lt;h1&gt; tag produces the largest heading. Headings range from h1 (largest) to h6 (smallest).</feedback_incorrect>
+</question>
