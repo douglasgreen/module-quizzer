@@ -1,6 +1,5 @@
 <?php
-// version: 1.0.0
-// modified: 2026-02-20
+// modified: 2026-02-26
 
 declare(strict_types=1);
 
